@@ -1,0 +1,14 @@
+{
+  "train_rows": 668665,
+  "test_rows": 286571,
+  "train_columns": 15,
+  "test_columns": 14,
+  "positive_rate": 0.17464500160768098,
+  "train_missing_cells": 0,
+  "test_missing_cells": 0,
+  "duplicate_train_ids": 0,
+  "duplicate_test_ids": 0,
+  "sample_ids_match_test": true,
+  "adversarial_validation_auc": 0.50034528925,
+  "source_note": "Kaggle files retrieved from a public mirror; see data/README.md"
+}

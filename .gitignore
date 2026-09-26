@@ -1,0 +1,19 @@
+.DS_Store
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+catboost_info/
+
+# Kaggle competition data and generated prediction arrays are intentionally local.
+data/raw/*.csv
+data/processed/*.npy
+data/processed/*.csv
+models/
+
+# Keep the final, human-auditable CSVs; ignore temporary submissions.
+submissions/_scratch/
+# Do not publish live-competition test predictions. The manifest is tracked.
+submissions/submission_best.csv
