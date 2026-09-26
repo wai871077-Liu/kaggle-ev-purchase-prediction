@@ -69,7 +69,7 @@ available.
 ├── reports/                   # Metrics, figures and final report
 ├── scripts/                   # Submission validation and notebook builder
 ├── src/evpurchase/            # Reusable data, feature, model and blend code
-├── submissions/               # Final prediction file and audit manifest
+├── submissions/               # Published audit manifest; predictions stay local
 ├── tests/                     # Fast pipeline tests
 ├── CITATIONS.md               # Data and library attribution
 └── requirements.txt
@@ -77,8 +77,9 @@ available.
 
 ## Reproduce the analysis
 
-Python 3.12 is required. Download the three competition CSV files into
-`data/raw/` as described in [`data/README.md`](data/README.md), then run:
+Python 3.12 is required. Download the three competition CSV files and the public
+source dataset into `data/raw/` as described in
+[`data/README.md`](data/README.md), then run:
 
 ```bash
 python3.12 -m venv .venv
