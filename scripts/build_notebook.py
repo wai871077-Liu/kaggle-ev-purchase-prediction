@@ -33,9 +33,12 @@ out-of-fold experiments and documents the final submission.
         """
 ## TL;DR
 
-- **Best validation:** 0.94607 five-fold OOF ROC-AUC.
-- **Final model:** 80/20 rank blend of triple-encoding LightGBM and XGBoost.
-- **Stability:** the blend beats the best single model on four of five folds.
+- **Best validation:** 0.94631 leakage-safe OOF ROC-AUC.
+- **Final model:** repeated-CV rank blend using two 10-fold fits, a shallow
+  20-fold fit and three complementary views.
+- **Verified public score:** 0.94641; below the same-day Top-10% cutoff of
+  approximately 0.94650.
+- **Stability:** the blend beats the best single model on all five audit groups.
 - **Quality checks:** no missing values, duplicate IDs or detectable global
   train/test shift.
 - **Scientific boundary:** findings describe a synthetic competition dataset;
@@ -67,9 +70,11 @@ print(f"Project root detected: {ROOT.name}")
 ## 1. Context and evaluation design
 
 The target is the probability that a customer purchases an electric vehicle.
-The competition metric is ROC-AUC. All models use the same stratified five-fold
-split with seed 42. Target encoding is learned only from the training
-portion of each fold, so validation labels never enter their own features.
+The competition metric is ROC-AUC. Comparable ablations use the same stratified
+five-fold split with seed 42; the strongest pipeline is also refit with 10
+folds under two seeds, plus a shallower 20-fold configuration. Target encoding
+is learned only from the training portion of each fold, so validation labels
+never enter their own features.
 
 Model and blend selection use out-of-fold predictions rather than the public
 leaderboard. This separates local evidence from Kaggle feedback and reduces the
@@ -158,10 +163,13 @@ display(Image(filename=str(ROOT / "reports/figures/prediction_correlation.png"),
     ),
     markdown(
         """
-The final 80/20 rank average combines two strong but non-identical views of the data.
+The final rank average combines two 10-fold splits and a shallower 20-fold fit
+with three smaller, non-identical views of the data.
 The targeted blend search tested a small set of auditable weights instead of a
-dense optimization over the same OOF labels. The chosen blend improved four of
-five held-out folds as well as the pooled score.
+dense optimization over the same OOF labels. The chosen blend improved all five
+audit groups as well as the pooled score. These groups reuse OOF rows and are
+a consistency diagnostic, not independent replications. Model selection and
+early stopping still create some optimism in the selected validation score.
 """
     ),
     markdown("## 5. Interpretation and submission checks"),
@@ -193,8 +201,8 @@ pd.Series({
    interactions materially improve discrimination.
 2. Nested cross-fitted target encodings and source-data statistics give the
    largest improvement; a simpler leave-one-out version was rejected.
-3. A simple two-model rank blend is more reliable here than a larger ensemble:
-   it produces the best pooled AUC and improves four of five folds.
+3. Repeated 10-fold and shallow 20-fold training add useful diversity; a compact
+   rank blend produces the best pooled AUC and improves all five audit groups.
 4. The repository keeps raw data, temporary predictions and actual leaderboard
    evidence distinct. The manifest is updated only after Kaggle confirms the
    upload.
@@ -202,6 +210,25 @@ pd.Series({
 **Limitation:** this is a synthetic competition dataset. Feature importance and
 observed purchase rates should not be presented as causal or population-level
 facts without external validation.
+"""
+    ),
+    markdown(
+        """
+## 7. Subgroup diagnostics and external score
+
+The subgroup table describes OOF discrimination within each population slice.
+Different case mixes make subgroup AUCs imperfectly comparable; this is not a
+fairness certification. Rank scores have mean 0.5 by construction and are not
+calibrated purchase probabilities.
+
+Kaggle receipts are matched by SHA-256, keeping each observed external score
+attached to the exact submitted artifact.
+"""
+    ),
+    code(
+        """
+display(pd.read_csv(ROOT / "reports/subgroup_metrics.csv"))
+display(pd.DataFrame(json.loads((ROOT / "reports/submission_receipts.json").read_text())))
 """
     ),
 ]

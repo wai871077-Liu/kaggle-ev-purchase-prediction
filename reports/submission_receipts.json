@@ -1,0 +1,42 @@
+[
+  {
+    "version": "original_v1",
+    "uploaded_filename": "submission_best.csv",
+    "sha256": "94a2862a98d7ee83424bbbbcd1d2951fc6a19b8ff0bdb58f1014f096f2ed5e08",
+    "local_oof_auc": 0.9460720550736058,
+    "public_score": 0.94627,
+    "status": "Complete",
+    "verified_on": "2026-09-27",
+    "verification": "Signed-in Kaggle Submissions page"
+  },
+  {
+    "version": "original_v2",
+    "uploaded_filename": "submission_best_original.csv",
+    "sha256": "5e05adabb6b998b39f88b38854da88fbf91b25bdfb4bde0c7a8107e19b3ac17e",
+    "local_oof_auc": 0.9462523728591719,
+    "public_score": 0.94639,
+    "status": "Complete",
+    "verified_on": "2026-09-27",
+    "verification": "Signed-in Kaggle Submissions page; matching SHA-256 in description"
+  },
+  {
+    "version": "original_v3",
+    "uploaded_filename": "submission_original_v3.csv",
+    "sha256": "d28a142ed23244db2ff8d3a8e97b3d4b71a397160b5827a4a294f60c580bf943",
+    "local_oof_auc": 0.9462978973339679,
+    "public_score": 0.94640,
+    "status": "Complete",
+    "verified_on": "2026-09-27",
+    "verification": "Signed-in Kaggle Submissions page; matching SHA-256 in description"
+  },
+  {
+    "version": "original_v4",
+    "uploaded_filename": "submission_original_v4.csv",
+    "sha256": "616a1d0dedfb6c72b5dbd8cdda4926960cb9cbce0f6f3f4b1cd91d190545f82b",
+    "local_oof_auc": 0.9463139443229237,
+    "public_score": 0.94641,
+    "status": "Complete",
+    "verified_on": "2026-09-27",
+    "verification": "Signed-in Kaggle Submissions and Leaderboard pages; matching SHA-256 in description"
+  }
+]

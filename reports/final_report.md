@@ -4,14 +4,20 @@
 
 This project predicts electric-vehicle purchase probability for Kaggle
 Playground Series Season 6, Episode 9. A reproducible five-fold evaluation was
-used to compare tree-boosting models and feature sets. The selected rank blend
-of triple-encoding LightGBM and XGBoost reached **0.946072 OOF ROC-AUC**,
-slightly above the best single model's **0.946057**, and improved four of the
-five validation folds.
+used to compare tree-boosting models and feature sets, followed by repeated
+10-fold fits and a shallower 20-fold fit of the strongest pipeline. The
+selected repeated-CV rank blend reached **0.946314 OOF ROC-AUC**, above the
+strongest single model's **0.946186**, and improved all five audit groups.
 
 The final artifact contains 286,571 predictions and passed structural and range
 checks. Its SHA-256 checksum is
-`94a2862a98d7ee83424bbbbcd1d2951fc6a19b8ff0bdb58f1014f096f2ed5e08`.
+`616a1d0dedfb6c72b5dbd8cdda4926960cb9cbce0f6f3f4b1cd91d190545f82b`.
+
+The independently built first version scored **0.94627** on the Kaggle public
+leaderboard. The final artifact, selected using local OOF evidence, scored
+**0.94641** on 2026-09-27. Its SHA-256 matched the uploaded description. The
+same-day Top-10% cutoff was approximately **0.94650**, so the original model
+improved but did not reach the target.
 
 ## Data audit
 
@@ -49,12 +55,18 @@ trees and interaction-friendly engineered features.
 | `xgb_digits` | Encoded categories and numeric digit features | 0.944006 | 0.944012 ± 0.000705 |
 | `xgb_digits_te` | Digit features + leave-one-out target encoding | 0.901997 | 0.916376 ± 0.005240 |
 | `triple_lgbm` | Digits + frequencies + source means + triple cross-fitted TE | 0.946057 | 0.946062 ± 0.000690 |
-| **Selected blend** | Rank average: 80% triple LGBM, 20% XGB | **0.946072** | **0.946078 ± 0.000692** |
+| `advanced_lgbm` | Triple features + multiscale bins and compact cross keys | 0.945971 | 0.945978 ± 0.000676 |
+| `triple_lgbm_10fold` | Strongest pipeline with 90% fit fraction per submodel | 0.946184 | 0.946192 ± 0.000812 |
+| `triple_lgbm_10fold_seed137` | Independent 10-fold split of the strongest pipeline | 0.946155 | 0.946164 ± 0.000703 |
+| `triple_lgbm_20fold_shallow` | Shallower trees with 20 outer folds and 10 inner folds | 0.946186 | 0.946197 ± 0.001258 |
+| **Selected blend** | Rank average across two 10-fold fits, shallow 20-fold fit, 5-fold fit, cross-feature LGBM and XGB | **0.946314** | **0.946317 ± 0.000664** |
 
 The blend search was deliberately small and interpretable: single models,
-coarse pairwise weights, and five predeclared three-model hypotheses. The final
-choice was required to be competitive globally and stable by fold. It beat the
-best single model in four of five folds.
+coarse pairwise weights, and predeclared three- and four-model hypotheses. The final
+choice was required to be competitive globally and stable by group. The final
+weights are 25% shallow 20-fold, 18.75% seed-137 10-fold, 33.75% seed-42
+10-fold, 5.625% 5-fold, 11.25% cross-feature LightGBM and 5.625% XGBoost. The
+blend beat the strongest single model in all five audit groups.
 
 ## Leakage controls
 
@@ -78,19 +90,26 @@ causal effects or real-world policy conclusions.
 |---|---|
 | File | `submissions/submission_best.csv` |
 | Rows | 286,571 |
-| Target type | Continuous probability in [0, 1] |
-| Kaggle upload | Pending web submission |
-| Public score | Pending |
+| SHA-256 | `616a1d0dedfb6c72b5dbd8cdda4926960cb9cbce0f6f3f4b1cd91d190545f82b` |
+| Public score | 0.94641; Complete; SHA-matched; verified 2026-09-27 |
 
-The machine-readable receipt is `submissions/submission_manifest.csv`. It is
-updated only after Kaggle confirms an upload, keeping local validation separate
-from actual leaderboard evidence.
+The same-day leaderboard export contained 3,123 teams. A score of 0.94641
+occupied the 502–525 score band because 24 teams were tied at that rounded
+score, corresponding to roughly the top 16–17%. The live page later showed
+3,127 teams. This is not a Top-10% result, and the final private ranking can
+differ because the public leaderboard uses approximately 20% of the test set.
+
+The machine-readable record is `submissions/submission_manifest.csv`.
 
 ## Limitations and next steps
 
 - Competition data appears synthetic, so conclusions may not generalize.
-- One fixed five-fold partition gives a strong comparison but not the full
-  uncertainty of repeated cross-validation.
+- Repeated 10-fold and shallow 20-fold predictions add diversity, but more
+  independent seeds would still be needed to quantify very small AUC changes.
+- Features, early stopping and blend weights were selected using validation
+  labels. The selected OOF score is therefore not an untouched test estimate.
+  The five audit groups reuse the OOF rows and are a consistency diagnostic,
+  not independent replication or evidence of statistical significance.
 - The public leaderboard is a noisy selection signal; future iterations should
   remain driven by out-of-fold evidence.
 - For a stronger research-style extension, probability calibration and grouped

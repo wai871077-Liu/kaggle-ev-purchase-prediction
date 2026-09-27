@@ -6,6 +6,7 @@ approach. Attribution and source links are recorded in CITATIONS.md.
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 
@@ -189,7 +190,7 @@ def _replace_categories_with_encodings(
     )
 
 
-def main() -> None:
+def main(n_splits: int = N_SPLITS, cv_seed: int = SEED, profile: str = "standard") -> None:
     ensure_output_directories()
     train, test, sample_submission = load_data()
     validate_data(train, test, sample_submission)
@@ -214,7 +215,15 @@ def main() -> None:
     ]
     x = features[model_columns]
     x_test = test_features[model_columns]
-    splitter = StratifiedKFold(n_splits=N_SPLITS, shuffle=True, random_state=SEED)
+    if n_splits == N_SPLITS and cv_seed == SEED:
+        experiment_name = "triple_lgbm"
+    else:
+        experiment_name = f"triple_lgbm_{n_splits}fold"
+        if cv_seed != SEED:
+            experiment_name += f"_seed{cv_seed}"
+    if profile != "standard":
+        experiment_name += f"_{profile}"
+    splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=cv_seed)
     oof = np.zeros(len(train), dtype="float64")
     test_prediction = np.zeros(len(test), dtype="float64")
     fold_rows: list[dict[str, object]] = []
@@ -229,7 +238,9 @@ def main() -> None:
         for smoothing, tag in (("auto", "auto"), (10.0, "10"), (100.0, "100")):
             encoder = TargetEncoder(
                 cv=StratifiedKFold(
-                    n_splits=N_SPLITS, shuffle=True, random_state=SEED
+                    n_splits=10 if profile == "shallow" else N_SPLITS,
+                    shuffle=True,
+                    random_state=cv_seed,
                 ),
                 smooth=smoothing,
                 target_type="binary",
@@ -267,15 +278,17 @@ def main() -> None:
             objective="binary",
             n_estimators=20_000,
             learning_rate=0.02,
-            max_depth=5,
-            num_leaves=32,
-            min_child_samples=10,
+            max_depth=4 if profile == "shallow" else 5,
+            num_leaves=16 if profile == "shallow" else 32,
+            min_child_samples=30 if profile == "shallow" else 10,
             subsample=0.812763,
-            colsample_bytree=0.30293,
+            colsample_bytree=0.5 if profile == "shallow" else 0.30293,
             reg_alpha=0.07094,
-            reg_lambda=2.03303,
+            reg_lambda=5.0 if profile == "shallow" else 2.03303,
             max_bin=1024,
-            random_state=SEED,
+            # Preserve the original five-fold experiment exactly; repeated
+            # ten-fold runs also vary the learner seed across folds.
+            random_state=(SEED if n_splits == N_SPLITS and cv_seed == SEED else cv_seed + fold),
             feature_pre_filter=False,
             n_jobs=8,
             verbosity=-1,
@@ -290,11 +303,11 @@ def main() -> None:
         )
         valid_prediction = model.predict_proba(x_valid)[:, 1]
         oof[valid_indices] = valid_prediction
-        test_prediction += model.predict_proba(x_test_fold)[:, 1] / N_SPLITS
+        test_prediction += model.predict_proba(x_test_fold)[:, 1] / n_splits
         fold_auc = float(roc_auc_score(target[valid_indices], valid_prediction))
         fold_rows.append(
             {
-                "experiment": "triple_lgbm",
+                "experiment": experiment_name,
                 "fold": fold,
                 "auc": fold_auc,
                 "best_iteration": model.best_iteration_,
@@ -311,25 +324,25 @@ def main() -> None:
             )
         )
         print(
-            f"[triple_lgbm] fold {fold}/{N_SPLITS}: "
+            f"[{experiment_name}] fold {fold}/{n_splits}: "
             f"AUC={fold_auc:.6f}, best_iteration={model.best_iteration_}",
             flush=True,
         )
 
     folds = pd.DataFrame(fold_rows)
-    folds.to_csv(REPORT_DIR / "triple_lgbm_folds.csv", index=False)
+    folds.to_csv(REPORT_DIR / f"{experiment_name}_folds.csv", index=False)
     (
         pd.concat(importances, ignore_index=True)
         .groupby("feature", as_index=False)["importance"]
         .mean()
         .sort_values("importance", ascending=False)
-        .to_csv(REPORT_DIR / "triple_lgbm_feature_importance.csv", index=False)
+        .to_csv(REPORT_DIR / f"{experiment_name}_feature_importance.csv", index=False)
     )
-    np.save(PROCESSED_DIR / "triple_lgbm_oof.npy", oof)
-    np.save(PROCESSED_DIR / "triple_lgbm_test.npy", test_prediction)
+    np.save(PROCESSED_DIR / f"{experiment_name}_oof.npy", oof)
+    np.save(PROCESSED_DIR / f"{experiment_name}_test.npy", test_prediction)
 
     result = {
-        "experiment": "triple_lgbm",
+        "experiment": experiment_name,
         "model_kind": "lgbm",
         "feature_variant": "digits_frequency_original_triple_te",
         "fold_target_encoding": True,
@@ -338,6 +351,10 @@ def main() -> None:
         "fold_auc_std": float(folds["auc"].std(ddof=1)),
         "feature_count": int(x_fit.shape[1]),
         "runtime_seconds": time.perf_counter() - started,
+        "outer_folds": n_splits,
+        "cv_seed": cv_seed,
+        "profile": profile,
+        "inner_folds": 10 if profile == "shallow" else N_SPLITS,
     }
     metrics_path = REPORT_DIR / "model_metrics.json"
     metrics = json.loads(metrics_path.read_text()) if metrics_path.exists() else []
@@ -350,4 +367,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--folds", type=int, default=N_SPLITS)
+    parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--profile", choices=["standard", "shallow"], default="standard")
+    args = parser.parse_args()
+    if args.folds < 2:
+        raise ValueError("folds must be at least 2")
+    main(args.folds, args.seed, args.profile)

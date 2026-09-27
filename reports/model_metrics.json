@@ -64,5 +64,53 @@
     "fold_auc_std": 0.0006897411483907359,
     "feature_count": 160,
     "runtime_seconds": 245.71608962499886
+  },
+  {
+    "experiment": "advanced_lgbm",
+    "model_kind": "lgbm",
+    "feature_variant": "triple_plus_multiscale_crosses",
+    "fold_target_encoding": true,
+    "oof_auc": 0.945970687078795,
+    "fold_auc_mean": 0.9459777414311754,
+    "fold_auc_std": 0.000676447236656951,
+    "feature_count": 227,
+    "runtime_seconds": 338.96803795899905
+  },
+  {
+    "experiment": "triple_lgbm_10fold",
+    "model_kind": "lgbm",
+    "feature_variant": "digits_frequency_original_triple_te",
+    "fold_target_encoding": true,
+    "oof_auc": 0.9461836326622343,
+    "fold_auc_mean": 0.9461916525483474,
+    "fold_auc_std": 0.0008116863202032936,
+    "feature_count": 160,
+    "runtime_seconds": 535.8423708750051
+  },
+  {
+    "experiment": "triple_lgbm_10fold_seed137",
+    "model_kind": "lgbm",
+    "feature_variant": "digits_frequency_original_triple_te",
+    "fold_target_encoding": true,
+    "oof_auc": 0.9461550377388701,
+    "fold_auc_mean": 0.9461637479203242,
+    "fold_auc_std": 0.0007025178688474814,
+    "feature_count": 160,
+    "runtime_seconds": 503.51578391699877
+  },
+  {
+    "experiment": "triple_lgbm_20fold_shallow",
+    "model_kind": "lgbm",
+    "feature_variant": "digits_frequency_original_triple_te",
+    "fold_target_encoding": true,
+    "oof_auc": 0.9461858164069878,
+    "fold_auc_mean": 0.9461967727582332,
+    "fold_auc_std": 0.0012577466593158512,
+    "feature_count": 160,
+    "runtime_seconds": 2345.536459625,
+    "outer_folds": 20,
+    "cv_seed": 42,
+    "profile": "shallow",
+    "inner_folds": 10
   }
 ]

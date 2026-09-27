@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from evpurchase.advanced import _build_extra_block
 from evpurchase.data import encode_target
 from evpurchase.features import add_fold_target_encoding, add_global_frequency_features
 
@@ -39,3 +40,26 @@ def test_training_target_encoding_leaves_each_row_out() -> None:
         train_encoded["group_FoldTargetMean"],
         [1 / 6, 2 / 3, 1 / 3],
     )
+
+
+def test_advanced_features_preserve_rows() -> None:
+    frame = pd.DataFrame(
+        {
+            "Annual_Income_USD": [30_000.0, 95_050.0],
+            "Daily_Commute_km": [5.0, 12.5],
+            "Environmental_Concern_Level": [1.0, 5.0],
+            "Number_of_Cars_Owned": [0, 2],
+            "Charging_Stations_Near_Home": [1, 4],
+            "Charging_Stations_Near_Work": [2, 6],
+            "Subsidy_Available": ["No", "Yes"],
+            "Home_Charging_Possible": ["No", "Yes"],
+            "City_Type": ["Rural", "Urban"],
+            "Range_Anxiety_Level": ["High", "Low"],
+            "Current_Car_Type": ["SUV", "Sedan"],
+            "Age": [25, 50],
+        }
+    )
+    features, categorical = _build_extra_block(frame)
+    assert len(features) == len(frame)
+    assert features["Adv_StationsTotal"].tolist() == [3.0, 10.0]
+    assert "Adv_Income500_x_ConcernSubsidy" in categorical

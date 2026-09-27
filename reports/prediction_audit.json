@@ -1,0 +1,8 @@
+{
+  "reconstructed_oof_auc": 0.9463139444392955,
+  "rows": 668665,
+  "mean_ranking_score": 0.5,
+  "positive_rate": 0.17464500160768098,
+  "calibrated_probability": false,
+  "interpretation": "Descriptive OOF subgroup AUC, not independent validation or a causal/fairness conclusion. Group case mix differs."
+}

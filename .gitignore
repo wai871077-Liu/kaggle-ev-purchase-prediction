@@ -16,4 +16,6 @@ models/
 # Keep the final, human-auditable CSVs; ignore temporary submissions.
 submissions/_scratch/
 # Do not publish live-competition test predictions. The manifest is tracked.
-submissions/submission_best.csv
+submissions/*.csv
+!submissions/submission_manifest.csv
+submissions/archive/

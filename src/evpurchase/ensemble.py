@@ -27,7 +27,11 @@ from .config import (
 from .data import encode_target, load_data, validate_data
 
 MODEL_NAMES = [
+    "triple_lgbm_20fold_shallow",
+    "triple_lgbm_10fold_seed137",
+    "triple_lgbm_10fold",
     "triple_lgbm",
+    "advanced_lgbm",
     "baseline_lgbm",
     "enhanced_lgbm",
     "xgb_digits",
@@ -77,6 +81,57 @@ def _targeted_weights(names: list[str]) -> list[np.ndarray]:
             weights[lookup["xgb_digits"]] = xgb_weight
             weights[lookup["catboost_diverse"]] = cat_weight
             candidates.append(weights)
+
+    # Predeclared stable blends around the 10-fold model. These combine fold
+    # bagging, an alternate cross-feature view and a small algorithm-diversity
+    # allocation without a dense search over OOF labels.
+    required = {
+        "triple_lgbm_10fold",
+        "triple_lgbm",
+        "advanced_lgbm",
+        "xgb_digits",
+    }
+    if required.issubset(names):
+        lookup = {name: index for index, name in enumerate(names)}
+        for ten_weight, five_weight, cross_weight, xgb_weight in [
+            (0.70, 0.10, 0.10, 0.10),
+            (0.70, 0.10, 0.20, 0.00),
+            (0.60, 0.20, 0.10, 0.10),
+            (0.60, 0.10, 0.20, 0.10),
+            (0.50, 0.20, 0.20, 0.10),
+        ]:
+            weights = np.zeros(count)
+            weights[lookup["triple_lgbm_10fold"]] = ten_weight
+            weights[lookup["triple_lgbm"]] = five_weight
+            weights[lookup["advanced_lgbm"]] = cross_weight
+            weights[lookup["xgb_digits"]] = xgb_weight
+            candidates.append(weights)
+
+    # Repeated split validation: retain the fixed v2 recipe and test only
+    # 25/50/75% replacement with the second independent fold assignment.
+    repeat_name = "triple_lgbm_10fold_seed137"
+    if required.issubset(names) and repeat_name in names:
+        lookup = {name: index for index, name in enumerate(names)}
+        v2 = np.zeros(count)
+        for name, weight in {
+            "triple_lgbm_10fold": 0.6,
+            "triple_lgbm": 0.1,
+            "advanced_lgbm": 0.2,
+            "xgb_digits": 0.1,
+        }.items():
+            v2[lookup[name]] = weight
+        for share in (0.25, 0.50, 0.75):
+            weights = v2 * (1 - share)
+            weights[lookup[repeat_name]] += share
+            candidates.append(weights)
+        shallow = "triple_lgbm_20fold_shallow"
+        if shallow in names:
+            repeated = v2 * 0.75
+            repeated[lookup[repeat_name]] = 0.25
+            for share in (0.25, 0.50, 0.75):
+                weights = repeated * (1 - share)
+                weights[lookup[shallow]] += share
+                candidates.append(weights)
 
     # Deduplicate floating-point representations without changing order.
     unique: list[np.ndarray] = []
@@ -203,6 +258,11 @@ def main() -> None:
         json.dumps(metrics, indent=2), encoding="utf-8"
     )
 
+    receipt_path = REPORT_DIR / "submission_receipts.json"
+    receipts = json.loads(receipt_path.read_text()) if receipt_path.exists() else []
+    receipt = next(
+        (row for row in receipts if row["sha256"] == metrics["submission_sha256"]), {}
+    )
     manifest = pd.DataFrame(
         [
             {
@@ -211,8 +271,8 @@ def main() -> None:
                 "blend_type": selected_type,
                 "weights": json.dumps(metrics["weights"], sort_keys=True),
                 "sha256": metrics["submission_sha256"],
-                "kaggle_uploaded": False,
-                "public_score": "",
+                "kaggle_uploaded": bool(receipt),
+                "public_score": receipt.get("public_score", ""),
                 "submission_id": "",
             }
         ]
@@ -255,10 +315,7 @@ def main() -> None:
     fig.savefig(FIGURE_DIR / "prediction_correlation.png", bbox_inches="tight")
     plt.close(fig)
 
-    importance_name = (
-        "triple_lgbm" if (REPORT_DIR / "triple_lgbm_feature_importance.csv").exists()
-        else "enhanced_lgbm"
-    )
+    importance_name = best_single
     importance_path = REPORT_DIR / f"{importance_name}_feature_importance.csv"
     if importance_path.exists():
         importance = pd.read_csv(importance_path).head(15).sort_values("importance")

@@ -5,8 +5,8 @@
 - Public discussion that motivated testing feature-by-feature ablations and
   competition-specific digit features:  
   https://www.kaggle.com/competitions/playground-series-s6e9/discussion/741755
-- Public experiment log used only as an external benchmark for the frequency,
-  fold-safe target-encoding, and model-diversity hypotheses:  
+- Methodological reference for frequency features,
+  fold-safe target encoding, and model diversity:
   https://github.com/pgkim42/kaggle/tree/main/playground-series-s6e9
 - Naji's public V3 LightGBM notebook, independently reimplemented and locally
   reproduced for the advanced triple-encoding experiment:  
