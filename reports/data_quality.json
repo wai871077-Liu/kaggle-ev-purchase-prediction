@@ -10,5 +10,5 @@
   "duplicate_test_ids": 0,
   "sample_ids_match_test": true,
   "adversarial_validation_auc": 0.50034528925,
-  "source_note": "Kaggle files retrieved from a public mirror; see data/README.md"
+  "source_note": "Kaggle files retrieved from a public mirror; see data/DATA_SOURCES.rst"
 }

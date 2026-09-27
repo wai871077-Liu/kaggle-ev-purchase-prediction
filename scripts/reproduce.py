@@ -15,7 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 def main() -> None:
     for name in ("train.csv", "test.csv", "sample_submission.csv", "original.csv"):
         if not (ROOT / "data/raw" / name).is_file():
-            raise FileNotFoundError(f"Missing data/raw/{name}; see data/README.md")
+            raise FileNotFoundError(
+                f"Missing data/raw/{name}; see data/DATA_SOURCES.rst"
+            )
     environment = os.environ.copy()
     environment["PYTHONPATH"] = str(ROOT / "src")
     stages = [
@@ -31,7 +33,6 @@ def main() -> None:
         ["-m", "evpurchase.ensemble"],
         ["scripts/audit_predictions.py"],
         ["scripts/validate_submission.py", "submissions/submission_best.csv"],
-        ["scripts/build_notebook.py"],
         ["-m", "jupyter", "nbconvert", "--execute", "--to", "notebook", "--inplace",
          "notebooks/01_ev_purchase_project.ipynb"],
         ["-m", "jupyter", "nbconvert", "--to", "html", "--output-dir", "reports",

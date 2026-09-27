@@ -1,7 +1,7 @@
 """Advanced LightGBM with cross-fitted multi-smoothing target encodings.
 
 The recipe is an independently structured implementation of the public Naji V3
-approach. Attribution and source links are recorded in CITATIONS.md.
+approach. Attribution and source links are recorded in SOURCES.rst.
 """
 
 from __future__ import annotations
@@ -196,7 +196,7 @@ def main(n_splits: int = N_SPLITS, cv_seed: int = SEED, profile: str = "standard
     validate_data(train, test, sample_submission)
     if not ORIGINAL_PATH.exists():
         raise FileNotFoundError(
-            "Missing data/raw/original.csv; see data/README.md for the public source"
+            "Missing data/raw/original.csv; see data/DATA_SOURCES.rst for the public source"
         )
     original = pd.read_csv(ORIGINAL_PATH)
     expected_original_columns = [

@@ -7796,42 +7796,34 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ec211c84">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a138234f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Predicting-Electric-Vehicle-Purchases">Predicting Electric Vehicle Purchases<a class="anchor-link" href="#Predicting-Electric-Vehicle-Purchases">¶</a></h1><p><strong>Kaggle Playground Series S6E9 · reproducible tabular classification</strong></p>
-<p>This notebook is the reader-friendly companion to a modular training pipeline.
-It audits the data, explains the feature strategy, compares leakage-safe
-out-of-fold experiments and documents the final submission.</p>
+<h1 id="Predicting-Electric-Vehicle-Purchases">Predicting Electric Vehicle Purchases<a class="anchor-link" href="#Predicting-Electric-Vehicle-Purchases">¶</a></h1><p>Kaggle Playground Series S6E9. Training and out-of-fold evaluation for a
+binary tabular classification problem.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=45474f13">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5af19166">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="TL;DR">TL;DR<a class="anchor-link" href="#TL;DR">¶</a></h2><ul>
-<li><strong>Best validation:</strong> 0.94631 leakage-safe OOF ROC-AUC.</li>
-<li><strong>Final model:</strong> repeated-CV rank blend using two 10-fold fits, a shallow
-20-fold fit and three complementary views.</li>
-<li><strong>Verified public score:</strong> 0.94641; below the same-day Top-10% cutoff of
-approximately 0.94650.</li>
-<li><strong>Stability:</strong> the blend beats the best single model on all five audit groups.</li>
-<li><strong>Quality checks:</strong> no missing values, duplicate IDs or detectable global
-train/test shift.</li>
-<li><strong>Scientific boundary:</strong> findings describe a synthetic competition dataset;
-they are predictive associations, not causal claims.</li>
+<h2 id="Run-summary">Run summary<a class="anchor-link" href="#Run-summary">¶</a></h2><ul>
+<li>668,665 training rows; 286,571 test rows; ROC-AUC evaluation.</li>
+<li>Selected ensemble: 0.946314 OOF AUC and 0.94641 public leaderboard score.</li>
+<li>Same-day Top-10% cutoff: approximately 0.94650.</li>
+<li>No missing values, duplicate IDs, or measurable global train/test shift.</li>
 </ul>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1c0e982a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=497687cb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7874,26 +7866,25 @@ they are predictive associations, not causal claims.</li>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=047623e1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fefd5c28">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="1.-Context-and-evaluation-design">1. Context and evaluation design<a class="anchor-link" href="#1.-Context-and-evaluation-design">¶</a></h2><p>The target is the probability that a customer purchases an electric vehicle.
+<h2 id="1.-Validation-setup">1. Validation setup<a class="anchor-link" href="#1.-Validation-setup">¶</a></h2><p>The target is the probability that a customer purchases an electric vehicle.
 The competition metric is ROC-AUC. Comparable ablations use the same stratified
 five-fold split with seed 42; the strongest pipeline is also refit with 10
 folds under two seeds, plus a shallower 20-fold configuration. Target encoding
 is learned only from the training portion of each fold, so validation labels
 never enter their own features.</p>
-<p>Model and blend selection use out-of-fold predictions rather than the public
-leaderboard. This separates local evidence from Kaggle feedback and reduces the
-risk of tuning to the public test subset.</p>
+<p>Model and blend selection use out-of-fold predictions. The public leaderboard
+score is recorded only for the submitted artifact.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2ed97d89">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3e0b42aa">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7903,7 +7894,7 @@ risk of tuning to the public test subset.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=88ce4abf">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=849e9ac0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8003,20 +7994,17 @@ risk of tuning to the public test subset.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=76af58a1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=18b96979">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>Adversarial validation asks whether a model can distinguish training rows from
-test rows. An AUC of 0.50035 is effectively random, providing no evidence of a
-broad distribution shift. This does not prove that every subgroup is identical,
-but it supports using ordinary stratified validation for this project.</p>
+<p>An adversarial classifier distinguishing train from test produced AUC 0.50035.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2e0bcce3">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d86e19f0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8043,7 +8031,7 @@ but it supports using ordinary stratified validation for this project.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3c7f781b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dce358a4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8053,7 +8041,7 @@ but it supports using ordinary stratified validation for this project.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=faf4c6b1">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3c279b66">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8155,7 +8143,7 @@ but it supports using ordinary stratified validation for this project.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a258858f">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4be9efe2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8189,7 +8177,7 @@ but it supports using ordinary stratified validation for this project.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b80aaf5b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c765e30d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8203,7 +8191,7 @@ additive linear model.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e258f533">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0c9b3063">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8213,7 +8201,7 @@ additive linear model.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=98e100dd">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3fdb7120">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8385,21 +8373,20 @@ additive linear model.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ab4e2367">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e1a6dd42">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>The enhanced LightGBM adds global frequency features. XGBoost receives
-digit-oriented numeric features to capture structure in the generated values.
-The strongest LightGBM adds source-data means and cross-fitted target encodings
-at three smoothing levels. A simpler leave-one-out target-encoding experiment
-is kept as a documented negative result rather than hidden.</p>
+digit-oriented numeric features. The strongest LightGBM adds source-data means
+and cross-fitted target encodings at three smoothing levels. The leave-one-out
+target-encoding variant is retained in the table because it reduced OOF AUC.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0194f822">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=086ce77d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8482,7 +8469,7 @@ is kept as a documented negative result rather than hidden.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=56670a77">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=24457eb7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8516,24 +8503,21 @@ is kept as a documented negative result rather than hidden.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6603a899">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ddc3747a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>The final rank average combines two 10-fold splits and a shallower 20-fold fit
-with three smaller, non-identical views of the data.
-The targeted blend search tested a small set of auditable weights instead of a
-dense optimization over the same OOF labels. The chosen blend improved all five
-audit groups as well as the pooled score. These groups reuse OOF rows and are
-a consistency diagnostic, not independent replications. Model selection and
-early stopping still create some optimism in the selected validation score.</p>
+with three additional model views. The candidate set uses coarse, fixed weight
+combinations. The chosen blend improved the pooled score and all five fixed
+audit groups. These groups reuse OOF rows and are not independent replications.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=03191427">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5af22507">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8543,7 +8527,7 @@ early stopping still create some optimism in the selected validation score.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=819c3e8d">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ee3b61ae">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8634,7 +8618,7 @@ early stopping still create some optimism in the selected validation score.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a0000907">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4c158497">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8712,31 +8696,22 @@ early stopping still create some optimism in the selected validation score.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6c4b9444">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=426e0108">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="6.-Takeaways">6. Takeaways<a class="anchor-link" href="#6.-Takeaways">¶</a></h2><ol>
-<li>Domain-like signal in concern, subsidy and income is strong, but nonlinear
-interactions materially improve discrimination.</li>
-<li>Nested cross-fitted target encodings and source-data statistics give the
-largest improvement; a simpler leave-one-out version was rejected.</li>
-<li>Repeated 10-fold and shallow 20-fold training add useful diversity; a compact
-rank blend produces the best pooled AUC and improves all five audit groups.</li>
-<li>The repository keeps raw data, temporary predictions and actual leaderboard
-evidence distinct. The manifest is updated only after Kaggle confirms the
-upload.</li>
-</ol>
-<p><strong>Limitation:</strong> this is a synthetic competition dataset. Feature importance and
-observed purchase rates should not be presented as causal or population-level
-facts without external validation.</p>
+<h2 id="6.-Selected-configuration">6. Selected configuration<a class="anchor-link" href="#6.-Selected-configuration">¶</a></h2><p>Nested target encoding and source-data lookup features produced the largest
+single-model gain. Repeated cross-validation and rank averaging added a smaller
+increment. The saved manifest links the final prediction checksum to its Kaggle
+score. Rank-averaged outputs are not calibrated probabilities, and the data is
+synthetic.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8e1f547e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=12a87530">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8751,7 +8726,7 @@ attached to the exact submitted artifact.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4d24ea31">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d1f75011">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

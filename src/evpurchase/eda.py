@@ -106,7 +106,7 @@ def main() -> None:
 
     payload = summary.to_dict() | {
         "adversarial_validation_auc": adversarial_auc,
-        "source_note": "Kaggle files retrieved from a public mirror; see data/README.md",
+        "source_note": "Kaggle files retrieved from a public mirror; see data/DATA_SOURCES.rst",
     }
     (REPORT_DIR / "data_quality.json").write_text(
         json.dumps(payload, indent=2), encoding="utf-8"
@@ -174,4 +174,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
